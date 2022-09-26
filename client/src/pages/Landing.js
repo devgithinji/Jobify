@@ -2,6 +2,7 @@ import React from 'react';
 import main from '../assets/images/main.svg'
 import Wrapper from "../assets/wrappers/Testing";
 import {Logo} from '../components'
+import {Link} from "react-router-dom";
 
 
 const Landing = () => {
@@ -19,7 +20,7 @@ const Landing = () => {
                         error labore reprehenderit sit! A commodi, delectus deleniti deserunt dignissimos dolores fugiat
                         illum impedit neque praesentium quas quisquam rem repellendus soluta ullam veniam voluptatum!
                         Dolor, nulla, vel.</p>
-                    <button className='btn btn-hero'>Login/Register</button>
+                    <Link to='/register' className='btn btn-hero'>Login/Register</Link>
                 </div>
                 <img src={main} alt="job hunt" className='img main-img'/>
             </div>
