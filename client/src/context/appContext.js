@@ -77,9 +77,11 @@ const AppProvider = ({children}) => {
             })
             addUserToLocalStorage({user, token, location})
         } catch (e) {
-            dispatch({
-                type: SETUP_USER_ERROR, payload: {msg: e.response.data.msg}
-            })
+            if (e.response.status !== 401) {
+                dispatch({
+                    type: SETUP_USER_ERROR, payload: {msg: e.response.data.msg}
+                })
+            }
         }
         clearAlert();
     }
