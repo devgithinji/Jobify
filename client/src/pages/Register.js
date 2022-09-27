@@ -11,7 +11,7 @@ const initialState = {
 
 const Register = () => {
     const [values, setValues] = useState(initialState)
-    const {isLoading, showAlert, displayAlert, registerUser, user, loginUser, setUpUser} = useAppContext()
+    const {isLoading, showAlert, displayAlert, user, setUpUser} = useAppContext()
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,28 +47,29 @@ const Register = () => {
         }
     }
 
-
-    return (<Wrapper className='full-page'>
-        <form className='form' onSubmit={onSubmit}>
-            <Logo/>
-            <h3>{values.isMember ? 'Login' : 'Register'}</h3>
-            {showAlert && <Alert/>}
-            {!values.isMember &&
-                <FormRow type='text' name='name' value={values.name} handleChange={handleChange} labelText='name'/>}
-            <FormRow type='email' name='email' value={values.email} handleChange={handleChange} labelText='email'/>
-            <FormRow type='password' name='password' value={values.password} handleChange={handleChange}
-                     labelText='password'/>
-            <button type='submit' className='btn btn-block' disabled={isLoading}>
-                submit
-            </button>
-            <p>
-                {values.isMember ? 'Not a member yet?' : 'Already a member'}
-                <button type='button' onClick={toggleMember} className='member-btn'>
-                    {values.isMember ? 'Register' : 'Login'}
+    return (
+        <Wrapper className='full-page'>
+            <form className='form' onSubmit={onSubmit}>
+                <Logo/>
+                <h3>{values.isMember ? 'Login' : 'Register'}</h3>
+                {showAlert && <Alert/>}
+                {!values.isMember &&
+                    <FormRow type='text' name='name' value={values.name} handleChange={handleChange} labelText='name'/>}
+                <FormRow type='email' name='email' value={values.email} handleChange={handleChange} labelText='email'/>
+                <FormRow type='password' name='password' value={values.password} handleChange={handleChange}
+                         labelText='password'/>
+                <button type='submit' className='btn btn-block' disabled={isLoading}>
+                    submit
                 </button>
-            </p>
-        </form>
-    </Wrapper>);
+                <p>
+                    {values.isMember ? 'Not a member yet?' : 'Already a member'}
+                    <button type='button' onClick={toggleMember} className='member-btn'>
+                        {values.isMember ? 'Register' : 'Login'}
+                    </button>
+                </p>
+            </form>
+        </Wrapper>
+    );
 };
 
 export default Register;

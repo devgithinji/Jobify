@@ -11,7 +11,7 @@ const App = () => {
                         <SharedLayout/>
                     </ProtectedRoute>
                 }>
-                    <Route index element={<Stats/>}/>
+                    <Route  index element={<Stats/>}/>
                     <Route path="all-jobs" element={<AllJobs/>}/>
                     <Route path="add-job" element={<AddJob/>}/>
                     <Route path="profile" element={<Profile/>}/>
