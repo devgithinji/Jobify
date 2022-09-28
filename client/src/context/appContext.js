@@ -11,7 +11,13 @@ import {
     UPDATE_USER_SUCCESS,
     UPDATE_USER_BEGIN,
     UPDATE_USER_ERROR,
-    HANDLE_CHANGE, CLEAR_VALUES, CREATE_JOB_BEGIN, CREATE_JOB_SUCCESS, CREATE_JOB_ERROR
+    HANDLE_CHANGE,
+    CLEAR_VALUES,
+    CREATE_JOB_BEGIN,
+    CREATE_JOB_SUCCESS,
+    CREATE_JOB_ERROR,
+    GET_JOBS_SUCCESS,
+    GET_JOBS_BEGIN, SET_EDIT_JOB, DELETE_JOB_BEGIN, EDIT_JOB_BEGIN, EDIT_JOB_SUCCESS, EDIT_JOB_ERROR
 } from "./actions";
 import axios from "axios";
 
@@ -39,7 +45,11 @@ export const initialState = {
     jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
     jobType: 'full-time',
     statusOptions: ['pending', 'interview', 'decline'],
-    status: 'pending'
+    status: 'pending',
+    jobs: [],
+    totalJobs: 0,
+    numOfPages: 1,
+    page: 1
 }
 
 const AppContext = createContext();
@@ -180,6 +190,72 @@ const AppProvider = ({children}) => {
         clearAlert();
     }
 
+    const getJobs = async () => {
+        let url = `/jobs`;
+        dispatch({type: GET_JOBS_BEGIN})
+
+        try {
+            const {data} = await authFetch(url);
+            const {jobs, totalJobs, numOfPages} = data;
+            dispatch({
+                type: GET_JOBS_SUCCESS,
+                payload: {
+                    jobs,
+                    totalJobs,
+                    numOfPages
+                }
+            })
+        } catch (e) {
+            // logoutUser()
+            console.log(e.response)
+        }
+        clearAlert();
+    }
+
+    const setEditJob = (id) => {
+        dispatch({type: SET_EDIT_JOB, payload: {id}})
+    }
+
+    const editJob = async () => {
+        dispatch({type: EDIT_JOB_BEGIN})
+        try {
+            const {position, company, jobLocation, jobType, status} = state;
+            await authFetch.patch(`/jobs/${state.editJobId}`, {
+                company,
+                position,
+                jobLocation,
+                jobType,
+                status
+            })
+
+            dispatch({
+                type: EDIT_JOB_SUCCESS
+            })
+
+            dispatch({
+                type: CLEAR_VALUES
+            })
+
+        } catch (e) {
+            if (e.response.status === 401) return
+            dispatch({
+                type: EDIT_JOB_ERROR,
+                payload: {msg: e.response.data.msg}
+            })
+        }
+        clearAlert();
+    }
+
+    const deleteJob = async (jobId) => {
+        dispatch({type: DELETE_JOB_BEGIN})
+        try {
+            await authFetch.delete(`/jobs/${jobId}`)
+            getJobs();
+        } catch (e) {
+            logoutUser()
+        }
+    }
+
     const clearValues = () => {
         dispatch({type: CLEAR_VALUES})
     }
@@ -196,7 +272,11 @@ const AppProvider = ({children}) => {
                 updateUser,
                 handleChange,
                 clearValues,
-                createJob
+                createJob,
+                getJobs,
+                setEditJob,
+                editJob,
+                deleteJob
             }}>
             {children}
         </AppContext.Provider>
