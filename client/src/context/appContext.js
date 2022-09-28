@@ -24,7 +24,9 @@ import {
     EDIT_JOB_SUCCESS,
     EDIT_JOB_ERROR,
     SHOW_STATS_BEGIN,
-    SHOW_STATS_SUCCESS, CLEAR_FILTERS
+    SHOW_STATS_SUCCESS,
+    CLEAR_FILTERS,
+    CHANGE_PAGE
 } from "./actions";
 import axios from "axios";
 
@@ -154,16 +156,14 @@ const AppProvider = ({children}) => {
             const {user, location, token} = data;
 
             dispatch({
-                type: UPDATE_USER_SUCCESS,
-                payload: {user, location, token}
+                type: UPDATE_USER_SUCCESS, payload: {user, location, token}
             })
 
             addUserToLocalStorage({user, location, token})
 
         } catch (e) {
             dispatch({
-                type: UPDATE_USER_ERROR,
-                payload: {msg: e.response.data.msg}
+                type: UPDATE_USER_ERROR, payload: {msg: e.response.data.msg}
             })
         }
         clearAlert();
@@ -172,8 +172,7 @@ const AppProvider = ({children}) => {
 
     const handleChange = ({name, value}) => {
         dispatch({
-            type: HANDLE_CHANGE,
-            payload: {name, value}
+            type: HANDLE_CHANGE, payload: {name, value}
         })
     }
 
@@ -184,11 +183,7 @@ const AppProvider = ({children}) => {
             const {position, company, jobLocation, jobType, status} = state
 
             await authFetch.post('/jobs', {
-                company,
-                position,
-                jobLocation,
-                jobType,
-                status
+                company, position, jobLocation, jobType, status
             })
             dispatch({
                 type: CREATE_JOB_SUCCESS
@@ -197,17 +192,16 @@ const AppProvider = ({children}) => {
         } catch (e) {
             if (e.response.status === 401) return;
             dispatch({
-                type: CREATE_JOB_ERROR,
-                payload: {msg: e.response.data.msg}
+                type: CREATE_JOB_ERROR, payload: {msg: e.response.data.msg}
             })
         }
         clearAlert();
     }
 
     const getJobs = async () => {
-        const {search, searchStatus, searchType, sort} = state;
+        const {page,search, searchStatus, searchType, sort} = state;
 
-        let url = `/jobs?status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
+        let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
 
         if (search) {
             url = `${url}&search=${search}`
@@ -219,11 +213,8 @@ const AppProvider = ({children}) => {
             const {data} = await authFetch(url);
             const {jobs, totalJobs, numOfPages} = data;
             dispatch({
-                type: GET_JOBS_SUCCESS,
-                payload: {
-                    jobs,
-                    totalJobs,
-                    numOfPages
+                type: GET_JOBS_SUCCESS, payload: {
+                    jobs, totalJobs, numOfPages
                 }
             })
         } catch (e) {
@@ -242,11 +233,7 @@ const AppProvider = ({children}) => {
         try {
             const {position, company, jobLocation, jobType, status} = state;
             await authFetch.patch(`/jobs/${state.editJobId}`, {
-                company,
-                position,
-                jobLocation,
-                jobType,
-                status
+                company, position, jobLocation, jobType, status
             })
 
             dispatch({
@@ -260,8 +247,7 @@ const AppProvider = ({children}) => {
         } catch (e) {
             if (e.response.status === 401) return
             dispatch({
-                type: EDIT_JOB_ERROR,
-                payload: {msg: e.response.data.msg}
+                type: EDIT_JOB_ERROR, payload: {msg: e.response.data.msg}
             })
         }
         clearAlert();
@@ -284,10 +270,8 @@ const AppProvider = ({children}) => {
         try {
             const {data} = await authFetch.get('/jobs/stats');
             dispatch({
-                type: SHOW_STATS_SUCCESS,
-                payload: {
-                    stats: data.defaultStats,
-                    monthlyApplications: data.monthlyApplications
+                type: SHOW_STATS_SUCCESS, payload: {
+                    stats: data.defaultStats, monthlyApplications: data.monthlyApplications
                 }
             })
         } catch (e) {
@@ -295,6 +279,10 @@ const AppProvider = ({children}) => {
             // logoutUser();
         }
         clearAlert();
+    }
+
+    const changePage = (page) => {
+        dispatch({type: CHANGE_PAGE, payload: {page}})
     }
 
     const clearFilters = () => {
@@ -306,28 +294,27 @@ const AppProvider = ({children}) => {
     }
 
 
-    return (
-        <AppContext.Provider
-            value={{
-                ...state,
-                displayAlert,
-                setUpUser,
-                toggleSideBar,
-                logoutUser,
-                updateUser,
-                handleChange,
-                clearValues,
-                createJob,
-                getJobs,
-                setEditJob,
-                editJob,
-                deleteJob,
-                showStats,
-                clearFilters
-            }}>
-            {children}
-        </AppContext.Provider>
-    )
+    return (<AppContext.Provider
+        value={{
+            ...state,
+            displayAlert,
+            setUpUser,
+            toggleSideBar,
+            logoutUser,
+            updateUser,
+            handleChange,
+            clearValues,
+            createJob,
+            getJobs,
+            setEditJob,
+            editJob,
+            deleteJob,
+            showStats,
+            clearFilters,
+            changePage
+        }}>
+        {children}
+    </AppContext.Provider>)
 }
 
 export const useAppContext = () => {

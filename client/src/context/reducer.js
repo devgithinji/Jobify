@@ -22,7 +22,8 @@ import {
     EDIT_JOB_ERROR,
     SHOW_STATS_BEGIN,
     SHOW_STATS_SUCCESS,
-    CLEAR_FILTERS
+    CLEAR_FILTERS,
+    CHANGE_PAGE
 } from "./actions";
 import {initialState} from "./appContext";
 
@@ -42,8 +43,7 @@ const reducer = (state, action) => {
 
     if (action.type === SETUP_USER_BEGIN) {
         return {
-            ...state,
-            isLoading: true
+            ...state, isLoading: true
         }
     }
 
@@ -63,11 +63,7 @@ const reducer = (state, action) => {
 
     if (action.type === SETUP_USER_ERROR) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: 'danger',
-            alertText: action.payload.msg
+            ...state, isLoading: false, showAlert: true, alertType: 'danger', alertText: action.payload.msg
         }
     }
 
@@ -77,11 +73,7 @@ const reducer = (state, action) => {
 
     if (action.type === LOGOUT_USER) {
         return {
-            ...initialState,
-            user: null,
-            token: null,
-            userLocation: null,
-            jobLocation: null
+            ...initialState, user: null, token: null, userLocation: null, jobLocation: null
         }
     }
 
@@ -105,16 +97,12 @@ const reducer = (state, action) => {
 
     if (action.type === SETUP_USER_ERROR) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: 'danger',
-            alertText: action.payload.msg
+            ...state, isLoading: false, showAlert: true, alertType: 'danger', alertText: action.payload.msg
         }
     }
 
     if (action.type === HANDLE_CHANGE) {
-        return {...state, [action.payload.name]: action.payload.value}
+        return {...state, page: 1, [action.payload.name]: action.payload.value}
     }
 
     if (action.type === CLEAR_VALUES) {
@@ -136,21 +124,13 @@ const reducer = (state, action) => {
 
     if (action.type === CREATE_JOB_SUCCESS) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: 'success',
-            alertText: 'New Job Created'
+            ...state, isLoading: false, showAlert: true, alertType: 'success', alertText: 'New Job Created'
         }
     }
 
     if (action.type === CREATE_JOB_ERROR) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: "danger",
-            alertText: action.payload.msg
+            ...state, isLoading: false, showAlert: true, alertType: "danger", alertText: action.payload.msg
         }
     }
 
@@ -172,14 +152,7 @@ const reducer = (state, action) => {
         const job = state.jobs.find(job => job._id === action.payload.id)
         const {_id, position, company, jobLocation, jobType, status} = job;
         return {
-            ...state,
-            isEditing: true,
-            editJobId: _id,
-            position,
-            company,
-            jobLocation,
-            jobType,
-            status
+            ...state, isEditing: true, editJobId: _id, position, company, jobLocation, jobType, status
         }
     }
 
@@ -193,21 +166,13 @@ const reducer = (state, action) => {
 
     if (action.type === EDIT_JOB_SUCCESS) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: 'success',
-            alertText: 'Job Updated!'
+            ...state, isLoading: false, showAlert: true, alertType: 'success', alertText: 'Job Updated!'
         }
     }
 
     if (action.type === EDIT_JOB_ERROR) {
         return {
-            ...state,
-            isLoading: false,
-            showAlert: true,
-            alertType: 'danger',
-            alertText: action.payload.msg
+            ...state, isLoading: false, showAlert: true, alertType: 'danger', alertText: action.payload.msg
         }
     }
 
@@ -226,12 +191,12 @@ const reducer = (state, action) => {
 
     if (action.type === CLEAR_FILTERS) {
         return {
-            ...state,
-            search: '',
-            searchStatus: 'all',
-            searchType: 'all',
-            sort: 'latest'
+            ...state, search: '', searchStatus: 'all', searchType: 'all', sort: 'latest'
         }
+    }
+
+    if (action.type === CHANGE_PAGE) {
+        return {...state, page: action.payload.page}
     }
 
     throw new Error(`no such action: ${action.type}`)
