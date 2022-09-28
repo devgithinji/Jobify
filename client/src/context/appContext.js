@@ -5,7 +5,13 @@ import {
     DISPLAY_ALERT,
     SETUP_USER_BEGIN,
     SETUP_USER_SUCCESS,
-    SETUP_USER_ERROR, TOGGLE_SIDEBAR, LOGOUT_USER, UPDATE_USER_SUCCESS, UPDATE_USER_BEGIN, UPDATE_USER_ERROR
+    SETUP_USER_ERROR,
+    TOGGLE_SIDEBAR,
+    LOGOUT_USER,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_BEGIN,
+    UPDATE_USER_ERROR,
+    HANDLE_CHANGE, CLEAR_VALUES, CREATE_JOB_BEGIN, CREATE_JOB_SUCCESS, CREATE_JOB_ERROR
 } from "./actions";
 import axios from "axios";
 
@@ -24,8 +30,16 @@ export const initialState = {
     user: user ? JSON.parse(user) : null,
     token: token,
     userLocation: userLocation || '',
+    showSidebar: false,
+    isEditing: false,
+    editJobId: '',
+    position: '',
+    company: '',
     jobLocation: userLocation || '',
-    showSidebar: false
+    jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
+    jobType: 'full-time',
+    statusOptions: ['pending', 'interview', 'decline'],
+    status: 'pending'
 }
 
 const AppContext = createContext();
@@ -131,8 +145,59 @@ const AppProvider = ({children}) => {
         clearAlert();
     }
 
+
+    const handleChange = ({name, value}) => {
+        dispatch({
+            type: HANDLE_CHANGE,
+            payload: {name, value}
+        })
+    }
+
+
+    const createJob = async () => {
+        dispatch({type: CREATE_JOB_BEGIN})
+        try {
+            const {position, company, jobLocation, jobType, status} = state
+
+            await authFetch.post('/jobs', {
+                company,
+                position,
+                jobLocation,
+                jobType,
+                status
+            })
+            dispatch({
+                type: CREATE_JOB_SUCCESS
+            })
+            clearValues()
+        } catch (e) {
+            if (e.response.status === 401) return;
+            dispatch({
+                type: CREATE_JOB_ERROR,
+                payload: {msg: e.response.data.msg}
+            })
+        }
+        clearAlert();
+    }
+
+    const clearValues = () => {
+        dispatch({type: CLEAR_VALUES})
+    }
+
+
     return (
-        <AppContext.Provider value={{...state, displayAlert, setUpUser, toggleSideBar, logoutUser, updateUser}}>
+        <AppContext.Provider
+            value={{
+                ...state,
+                displayAlert,
+                setUpUser,
+                toggleSideBar,
+                logoutUser,
+                updateUser,
+                handleChange,
+                clearValues,
+                createJob
+            }}>
             {children}
         </AppContext.Provider>
     )
