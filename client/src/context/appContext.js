@@ -17,7 +17,14 @@ import {
     CREATE_JOB_SUCCESS,
     CREATE_JOB_ERROR,
     GET_JOBS_SUCCESS,
-    GET_JOBS_BEGIN, SET_EDIT_JOB, DELETE_JOB_BEGIN, EDIT_JOB_BEGIN, EDIT_JOB_SUCCESS, EDIT_JOB_ERROR
+    GET_JOBS_BEGIN,
+    SET_EDIT_JOB,
+    DELETE_JOB_BEGIN,
+    EDIT_JOB_BEGIN,
+    EDIT_JOB_SUCCESS,
+    EDIT_JOB_ERROR,
+    SHOW_STATS_BEGIN,
+    SHOW_STATS_SUCCESS
 } from "./actions";
 import axios from "axios";
 
@@ -49,7 +56,9 @@ export const initialState = {
     jobs: [],
     totalJobs: 0,
     numOfPages: 1,
-    page: 1
+    page: 1,
+    stats: {},
+    monthlyApplications: []
 }
 
 const AppContext = createContext();
@@ -256,6 +265,26 @@ const AppProvider = ({children}) => {
         }
     }
 
+
+    const showStats = async () => {
+        dispatch({type: SHOW_STATS_BEGIN})
+
+        try {
+            const {data} = await authFetch.get('/jobs/stats');
+            dispatch({
+                type: SHOW_STATS_SUCCESS,
+                payload: {
+                    stats: data.defaultStats,
+                    monthlyApplications: data.monthlyApplications
+                }
+            })
+        } catch (e) {
+            console.log(e.response)
+            // logoutUser();
+        }
+        clearAlert();
+    }
+
     const clearValues = () => {
         dispatch({type: CLEAR_VALUES})
     }
@@ -276,7 +305,8 @@ const AppProvider = ({children}) => {
                 getJobs,
                 setEditJob,
                 editJob,
-                deleteJob
+                deleteJob,
+                showStats
             }}>
             {children}
         </AppContext.Provider>
