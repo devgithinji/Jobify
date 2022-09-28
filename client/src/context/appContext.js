@@ -24,7 +24,7 @@ import {
     EDIT_JOB_SUCCESS,
     EDIT_JOB_ERROR,
     SHOW_STATS_BEGIN,
-    SHOW_STATS_SUCCESS
+    SHOW_STATS_SUCCESS, CLEAR_FILTERS
 } from "./actions";
 import axios from "axios";
 
@@ -58,7 +58,12 @@ export const initialState = {
     numOfPages: 1,
     page: 1,
     stats: {},
-    monthlyApplications: []
+    monthlyApplications: [],
+    search: '',
+    searchStatus: 'all',
+    searchType: 'all',
+    sort: 'latest',
+    sortOptions: ['latest', 'oldest', 'a-z', 'z-a']
 }
 
 const AppContext = createContext();
@@ -200,7 +205,14 @@ const AppProvider = ({children}) => {
     }
 
     const getJobs = async () => {
-        let url = `/jobs`;
+        const {search, searchStatus, searchType, sort} = state;
+
+        let url = `/jobs?status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
+
+        if (search) {
+            url = `${url}&search=${search}`
+        }
+
         dispatch({type: GET_JOBS_BEGIN})
 
         try {
@@ -285,6 +297,10 @@ const AppProvider = ({children}) => {
         clearAlert();
     }
 
+    const clearFilters = () => {
+        dispatch({type: CLEAR_FILTERS})
+    }
+
     const clearValues = () => {
         dispatch({type: CLEAR_VALUES})
     }
@@ -306,7 +322,8 @@ const AppProvider = ({children}) => {
                 setEditJob,
                 editJob,
                 deleteJob,
-                showStats
+                showStats,
+                clearFilters
             }}>
             {children}
         </AppContext.Provider>
